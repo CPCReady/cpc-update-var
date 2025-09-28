@@ -1,0 +1,109 @@
+#!/bin/bash
+##--------------------------------------------------------------------------------
+##
+##   ▞▀▖▛▀▖▞▀▖▛▀▖        ▌      Created....: © Destroyer 2025
+##   ▌  ▙▄▘▌  ▙▄▘▞▀▖▝▀▖▞▀▌▌ ▌   Description: Modi.
+##   ▌ ▖▌  ▌ ▖▌▚ ▛▀ ▞▀▌▌ ▌▚▄▌   Github.....: https://github.com/orgs/CPCReady
+##   ▝▀ ▘  ▝▀ ▘ ▘▝▀▘▝▀▘▝▀▘▗▄▘   Doc........: https://cpcready.readthedocs.io/  
+##
+##-----------------------------LICENSE NOTICE--------------------------------------
+##  This file is part of CPCReady Basic programation.
+##  Copyright (C) 2025 Destroyer
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU Lesser General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU Lesser General Public License for more details.
+##
+##  You should have received a copy of the GNU Lesser General Public License
+##  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##--------------------------------------------------------------------------------
+set -e
+
+VERSION="0.1.0"
+
+usage() {
+  echo
+  echo "Usage: source $(basename "$0") [OPTIONS] KEY=VALUE [KEY=VALUE ...]"
+  echo
+  echo "Modifies or adds one or more environment variables in the .cpc file and reloads direnv."
+  echo
+  echo "Options:"
+  echo "  -h, --help    Show this help."
+  echo "  -v, --version Show the script version."
+  echo
+  echo "Arguments:"
+  echo "  KEY=VALUE     One or more variables to update. If KEY exists, it is modified. If not, it is added."
+  echo
+  echo "Examples:"
+  echo "  source $(basename "$0") PEPE=42 MODE=prod"
+  echo "  source $(basename "$0") --help"
+  echo
+}
+
+if [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]]; then
+  usage
+  exit 1
+fi
+
+if [[ "$1" == "-v" ]] || [[ "$1" == "--version" ]]; then
+  echo "v$VERSION"
+  exit 1
+fi
+
+if [[ $# -eq 0 ]]; then
+  usage
+  exit 1
+fi
+
+# Function to find .cpc file upwards from the current directory
+find_cpc_file() {
+  DIR="$PWD"
+  while [[ "$DIR" != "/" ]]; do
+    if [[ -f "$DIR/.cpc" ]]; then
+      echo "$DIR/.cpc"
+      return 0
+    fi
+    DIR=$(dirname "$DIR")
+  done
+  exit 1
+}
+
+CPC_FILE=$(find_cpc_file)
+
+if [[ -z "$CPC_FILE" ]]; then
+  echo ".cpc not found in any parent directory"
+  exit 1
+fi
+
+DIRENV_DIR=$(dirname "$CPC_FILE")
+cd "$DIRENV_DIR"
+
+for ARG in "$@"; do
+  if [[ "$ARG" != *=* ]]; then
+    echo "Ignoring invalid argument: $ARG"
+    continue
+  fi
+  KEY="${ARG%%=*}"
+  VALUE="${ARG#*=}"
+
+  if grep -q "^${KEY}=" "$CPC_FILE"; then
+    sed -i.bak "s|^${KEY}=.*|${KEY}=${VALUE}|" "$CPC_FILE"
+  else
+    echo "${KEY}=${VALUE}" >> "$CPC_FILE"
+  fi
+done
+
+# Reload direnv
+direnv reload --quiet
+
+# Remove backup
+rm -f "$DIRENV_DIR/.cpc.bak"
+
+# Return to the original directory
+cd - > /dev/null
