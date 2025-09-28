@@ -25,9 +25,18 @@
 ##--------------------------------------------------------------------------------
 set -e
 
-VERSION="0.1.0"
+VERSION="0.1.1"
 
 usage() {
+  echo
+  echo "==================================================================================="
+  echo
+  echo " ▞▀▖▛▀▖▞▀▖▛▀▖        ▌       ✴ Created: © Destroyer 2025" 
+  echo " ▌  ▙▄▘▌  ▙▄▘▞▀▖▝▀▖▞▀▌▌ ▌    ✴ Command: cpc-update-var v$VERSION"
+  echo " ▌ ▖▌  ▌ ▖▌▚ ▛▀ ▞▀▌▌ ▌▚▄▌    ✴ Github : https://github.com/CPCReady/cpc-update-var"
+  echo " ▝▀ ▘  ▝▀ ▘ ▘▝▀▘▝▀▘▝▀▘▗▄▘    ✴ Doc    : https://cpcready.readthedocs.io/" 
+  echo
+  echo "==================================================================================="
   echo
   echo "Usage: source $(basename "$0") [OPTIONS] KEY=VALUE [KEY=VALUE ...]"
   echo
