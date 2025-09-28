@@ -41,7 +41,7 @@ usage() {
   echo "  KEY=VALUE     One or more variables to update. If KEY exists, it is modified. If not, it is added."
   echo
   echo "Examples:"
-  echo "  source $(basename "$0") PEPE=42 MODE=prod"
+  echo "  source $(basename "$0") CPC=464 MODE=1"
   echo "  source $(basename "$0") --help"
   echo
 }
